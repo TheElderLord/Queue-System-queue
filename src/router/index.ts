@@ -15,6 +15,11 @@ const router = createRouter({
       name: 'main',
       component: QueuePage
     },
+    {
+      path: '/tes',
+      name: 'tes',
+      component: TestView
+    },
 
   ]
 })

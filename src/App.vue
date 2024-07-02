@@ -11,29 +11,17 @@ const store = useStore();
 const route = useRoute();
 const isMobile = ref(false);
 
-const isAdminPage = () => {
-  if (route.path === "/admin") {
-    return true;
-  }
-  return false;
-}
 
-const checkIfMobile = () => {
-  isMobile.value = window.innerWidth <= 768;
-  store.setMobile(isMobile.value);
-};
+
 
 onMounted(() => {
-  checkIfMobile();
+  
   // Add event listener for window resize
-  window.addEventListener('resize', checkIfMobile);
+ 
   localStorage.setItem("branch", "1")
 })
 
-onUnmounted(() => {
-  // Remove the event listener when the component is unmounted
-  window.removeEventListener('resize', checkIfMobile);
-});
+
 </script>
 
 <template>
