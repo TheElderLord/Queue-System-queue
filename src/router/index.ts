@@ -3,6 +3,7 @@
 import QueuePage from '@/views/QueuePage.vue'
 
 import TestView from "@/views/TestView.vue"
+import AdminPage from "@/views/AdminPage.vue"
 
 import { createRouter, createWebHistory } from 'vue-router'
 
@@ -16,9 +17,14 @@ const router = createRouter({
       component: QueuePage
     },
     {
-      path: '/tes',
-      name: 'tes',
+      path: '/test',
+      name: 'test',
       component: TestView
+    },
+    {
+      path: '/admin',
+      name: 'admin',
+      component: AdminPage
     },
 
   ]
