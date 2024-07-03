@@ -14,12 +14,7 @@ const isMobile = ref(false);
 
 
 
-onMounted(() => {
-  
-  // Add event listener for window resize
- 
-  localStorage.setItem("branch", "1")
-})
+
 
 
 </script>

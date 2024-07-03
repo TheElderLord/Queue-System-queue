@@ -1,51 +1,55 @@
+<script setup>
+import { ref } from 'vue';
+
+const audioPlayer = ref(null);
+const audioSources = ref([
+  '/src/assets/Voice/01_NUM_EN.wav',
+  '/src/assets/Voice/2_EN.wav',
+  '/src/assets/Voice/02_NUM_EN_FOLLOW.wav',
+  '/src/assets/Voice/4_EN.wav',
+]);
+let currentAudioIndex = ref(0);
+
+const playAudio = async () => {
+  for (let i = 0; i < audioSources.value.length; i++) {
+    audioPlayer.value.src = audioSources.value[i];
+    await new Promise((resolve) => {
+      audioPlayer.value.onended = resolve;
+      audioPlayer.value.play();
+    });
+  }
+};
+
+const pauseAudio = () => {
+  audioPlayer.value.pause();
+};
+
+const stopAudio = () => {
+  audioPlayer.value.pause();
+  audioPlayer.value.currentTime = 0;
+  currentAudioIndex.value = 0; // Reset index to play from the beginning
+};
+</script>
+
+
+
 <template>
+  <div>
+    <h1>WAV Audio Player</h1>
     <div>
-      <audio ref="audio" :src="audioSource" @canplay="onCanPlay" @ended="onAudioEnded"></audio>
       <button @click="playAudio">Play</button>
       <button @click="pauseAudio">Pause</button>
+      <button @click="stopAudio">Stop</button>
     </div>
-  </template>
-  
-  <script>
-  export default {
-    data() {
-      return {
-        audioSource: '/public/audio.mp3' // Correct path to your audio file
-      }
-    },
-    methods: {
-      playAudio() {
-        const audio = this.$refs.audio;
-        if (audio && audio.readyState >= 3) { // Check if audio is ready to play
-          audio.play();
-        } else {
-          console.warn('Audio is not ready to play');
-        }
-      },
-      pauseAudio() {
-        const audio = this.$refs.audio;
-        if (audio) {
-          audio.pause();
-        }
-      },
-      onAudioEnded() {
-        console.log('Audio has ended');
-      },
-      onCanPlay() {
-        console.log('Audio can play');
-        this.playAudio();
-      }
-    },
-    mounted() {
-      const audio = this.$refs.audio;
-      if (audio) {
-        audio.load();
-      }
-    }
-  }
-  </script>
-  
-  <style scoped>
-  /* Add your styles here */
-  </style>
-  
+      <div class="aud">
+        <audio ref="audioPlayer" controls />
+      </div>
+    
+   
+  </div>
+</template>
+<style>
+.aud{
+  display:none
+}
+</style>

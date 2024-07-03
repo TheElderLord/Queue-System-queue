@@ -1,39 +1,81 @@
 <script setup lang="ts">
 import type { Ticket } from '../models/ticket.interface';
 import { fetchQueueTickets } from '../utils/tickets.utils';
-import { onMounted, ref } from 'vue';
-
+import { onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 
 
-const router = useRouter()
 
-const tickets = ref([] as Ticket[])
+const router = useRouter();
 
-const taps = ref(0 as number)
+const incomingTickets = ref<Ticket[]>([]);
+const tickets = ref<(Ticket | null)[]>(Array(6).fill(null));
+const branchId = ref<number>(0);
+const branchSelected = ref<boolean>(true);
+
+const audioPlayer = ref(null);
+const audioSources = ref([
+    '/src/assets/Voice/01_NUM_EN.wav',
+    '/src/assets/Voice/2_EN.wav',
+    '/src/assets/Voice/02_NUM_EN_FOLLOW.wav',
+    '/src/assets/Voice/4_EN.wav',
+]);
 
 const getQueueTickets = async () => {
-    tickets.value = await fetchQueueTickets();
-    // tickets.value.push(newTickets.value[newTickets.value.length - 1]);
+    incomingTickets.value = await fetchQueueTickets(branchId.value);
+    if (incomingTickets.value.length > 0) {
+        const latestTicket = incomingTickets.value[incomingTickets.value.length - 1];
+        if (!tickets.value.some(ticket => ticket && ticket.id === latestTicket.id)) {
+            console.log(latestTicket);
+            tickets.value.unshift(latestTicket);
+            const lang = latestTicket.language === "KAZ" ? "KZ" : latestTicket.language === "RUS" ? "RU" : "EN";
+            audioSources.value = [
+                `/src/assets/Voice/01_NUM_${lang}.wav`,
+                `/src/assets/Voice/2_${lang}.wav`,
+                `/src/assets/Voice/02_NUM_${lang}.wav`,
+                `/src/assets/Voice/4_${lang}.wav`
+            ]
+            playAudio();
+            tickets.value.pop(); // Remove the last ticket to keep the array size fixed
+        }
+    }
 }
 
 const handleTaps = () => {
-    console.log(taps.value)
-    taps.value++;
-    if (taps.value === 3) {
-        router.push("/admin")
+    router.push("/admin");
+}
+
+const getBranchIdFromLocalStorage = () => {
+    const branch = localStorage.getItem("branch");
+    if (branch) {
+        branchId.value = parseInt(branch);
+    } else {
+        branchSelected.value = false;
     }
 }
-onMounted(() => {
-    getQueueTickets();
-    setInterval(() => {
-        getQueueTickets();
-    }, 5000)
-})
-</script>
-<template>
-    <div class="queue-container h-full w-full p-4" @click="handleTaps()">
 
+const playAudio = async () => {
+    for (let i = 0; i < audioSources.value.length; i++) {
+        audioPlayer.value.src = audioSources.value[i];
+        await new Promise((resolve) => {
+            audioPlayer.value.onended = resolve;
+            audioPlayer.value.play();
+        });
+    }
+};
+
+
+onMounted(() => {
+    getBranchIdFromLocalStorage();
+    getQueueTickets();
+    setInterval(getQueueTickets, 3000); // Refresh tickets every 3 seconds
+});
+</script>
+
+<template>
+    <div class="queue-container h-full w-full p-4">
+        <audio class="hidden" ref="audioPlayer" controls />
+        <h1 v-if="!branchSelected" class="text-3xl text-red-600 text-center">Выберите отделение в настройках</h1>
         <div class="mainBlock w-full h-3/5 flex">
             <div class="leftBlock w-3/4 h-full">
                 <iframe class="w-full h-full"
@@ -43,107 +85,60 @@ onMounted(() => {
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                     referrerpolicy="strict-origin-when-cross-origin" allowfullscreen>
                 </iframe>
-
             </div>
-            <div class="tickets w-1/4 h-full  flex flex-wrap bg-purple-800">
+            <div class="tickets w-1/4 h-full flex flex-wrap bg-purple-800">
                 <div class="ticket w-full flex justify-around text-2xl">
                     <div class="number w-full text-center">Номер</div>
                     <div class="window w-full text-center">Окно</div>
                 </div>
-                <div class="ticket w-full flex justify-around text-2xl">
-                    <div class="number w-full text-center">1</div>
-                    <div class="window w-full text-center">2</div>
+                <div v-for="ticket in tickets" :key="ticket?.id ?? 'placeholder'"
+                    class="ticket w-full flex justify-around text-2xl">
+                    <div class="number w-full text-center">{{ ticket?.ticketNumber ?? '-' }}</div>
+                    <div class="window w-full text-center">{{ ticket?.windowNum ?? '-' }}</div>
                 </div>
-                <div class="ticket w-full flex justify-around text-2xl">
-                    <div class="number w-full text-center">1</div>
-                    <div class="window w-full text-center">2</div>
-                </div>
-                <div class="ticket w-full flex justify-around text-2xl">
-                    <div class="number w-full text-center">1</div>
-                    <div class="window w-full text-center">2</div>
-                </div>
-                <div class="ticket w-full flex justify-around text-2xl">
-                    <div class="number w-full text-center">1</div>
-                    <div class="window w-full text-center">2</div>
-                </div>
-                <div class="ticket w-full flex justify-around text-2xl">
-                    <div class="number w-full text-center">1</div>
-                    <div class="window w-full text-center">2</div>
-                </div>
-                <div class="ticket w-full flex justify-around text-2xl">
-                    <div class="number w-full text-center">1</div>
-                    <div class="window w-full text-center">2</div>
-                </div>
-
 
             </div>
         </div>
-        <footer class="flex w-full ">
+        <footer class="flex w-full">
             <div class="logo flex w-full">
                 <div class="img">
-                    <img src="/public/logo.svg" alt="" width="300">
+                    <img src="../assets/logo.svg" alt="" width="300">
                 </div>
-
                 <div class="text text-center flex justify-center items-center">
                     <div>
-                    <div>Астана Медицина Университеті</div><br>
-                    <div>Медицинский Университет Астана</div><br>
-                    <div>Astana Medical University</div><br>
+                        <div>Астана Медицина Университеті</div><br>
+                        <div>Медицинский Университет Астана</div><br>
+                        <div>Astana Medical University</div><br>
+                    </div>
                 </div>
-                </div>
-
             </div>
             <div class="qr w-full flex justify-around">
                 <div class="img">
-                    <img src="/public/bach.gif" alt="" width="300">
+                    <img src="../assets/bach.gif" alt="" width="300">
                 </div>
-
                 <div class="text text-center flex justify-center items-center">
                     <div>
-                    <div>Сканируйте QR</div><br>
-                
+                        <div>Сканируйте QR</div><br>
+                    </div>
                 </div>
-                </div>
+                <v-btn @click="handleTaps()" class="absolute bottom-0 right-0"><i class="fas fa-tools"></i></v-btn>
             </div>
         </footer>
-        <!-- <div v-if="tickets.length > 0" class="tickets">
-
-            <div v-for="ticket in tickets" :key="ticket.id" class="ticket">
-                <div class="ticketNum">
-                    {{ ticket.ticketNumber }}
-                </div>
-                <div class="icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill="currentColor"
-                        class="bi bi-arrow-right" viewBox="0 0 16 16">
-                        <path fill-rule="evenodd"
-                            d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8" />
-                    </svg>
-                </div>
-                <div class="windowNum">
-                    {{ ticket.windowNum }}
-                </div>
-            </div>
-        </div>
-        <div class="text-3xl text-center" v-else> 
-            Пусто
-        </div> -->
-
     </div>
 </template>
+
 <style lang="scss" scoped>
 .queue-container {
     width: 100%;
     height: 100%;
 }
-.text{
-    
-    div{
+
+.text {
+    div {
         font-size: 30px;
         padding: auto;
         font-weight: bold;
-        color: rgb(82, 19, 141)
-
-        
+        color: rgb(82, 19, 141);
     }
 }
 
@@ -153,7 +148,7 @@ onMounted(() => {
         border: 2px solid white;
         display: flex;
         justify-content: center;
-        align-items: center
+        align-items: center;
     }
 }
 </style>

@@ -29,6 +29,7 @@
     "pinia": "^2.1.7",
     "uuid": "^9.0.1",
     "vue": "^3.4.21",
+    "vue-audio-player": "^0.0.2",
     "vue-router": "^4.3.0",
     "vuetify": "^3.6.7",
     "yarn": "^1.22.22"
