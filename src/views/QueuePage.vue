@@ -207,17 +207,17 @@ onMounted(() => {
             </div>
         </div>
         <footer class="flex w-full">
-            <div class="logo  w-full">
+            <div class="logo  flex w-full">
                 <div class="img img flex justify-center items-center">
-                    <img src="../assets/logo.svg" alt="" width="300">
+                    <img src="../assets/logo.jpeg" alt="" width="300">
                 </div>
-                <!-- <div class="text text-center flex justify-center items-center">
+                <div class="text text-center flex justify-center items-center">
                     <div>
                         <div>Астана Медицина Университеті</div><br>
                         <div>Медицинский Университет Астана</div><br>
                         <div>Astana Medical University</div><br>
                     </div>
-                </div> -->
+                </div>
             </div>
             <div class="qr w-full flex justify-around">
                 <div class="img flex justify-center items-center">
