@@ -164,11 +164,11 @@ const initializeAudioContext = () => {
     audioInitialized.value = true;
 }
 
-const getBranchQR = ()=>{
-    switch(branchId.value){
-        case 1:return res;
-        case 2:return bachelor;
-        case 3:return master;
+const getBranchQR = () => {
+    switch (branchId.value) {
+        case 1: return res;
+        case 2: return bachelor;
+        case 3: return master;
     }
 
 }
@@ -184,8 +184,8 @@ onMounted(() => {
     <div class="queue-container h-full w-full p-4">
         <h1 v-if="!branchSelected" class="text-3xl text-red-600 text-center">Выберите отделение в настройках</h1>
         <button v-if="!audioInitialized" @click="initializeAudioContext">Initialize Audio</button>
-        <div v-else class="mainBlock w-full h-3/5 flex">
-            <div class="leftBlock w-3/4 h-full">
+        <div v-else class="mainBlock w-full h-4/6 flex">
+            <div class="leftBlock w-3/5 h-full">
                 <iframe class="w-full h-full"
                     src="https://www.youtube.com/embed/5VPE2sA6hXw?playlist=5VPE2sA6hXw&loop=1&autoplay=1&mute=1"
                     title="Alan Walker, Dua Lipa, Coldplay, Martin Garrix &amp; Kygo, The Chainsmokers Style 🔥 Summer Vibes #5"
@@ -194,7 +194,7 @@ onMounted(() => {
                     referrerpolicy="strict-origin-when-cross-origin" allowfullscreen>
                 </iframe>
             </div>
-            <div class="tickets w-1/4 h-full flex flex-wrap bg-purple-800">
+            <div class="tickets w-2/5 h-full flex flex-wrap bg-purple-800">
                 <div class="ticket w-full flex justify-around text-2xl">
                     <div class="number w-full text-center">Номер</div>
                     <div class="window w-full text-center">Окно</div>
@@ -235,6 +235,7 @@ onMounted(() => {
 </template>
 
 <style lang="scss" scoped>
+
 .queue-container {
     width: 100%;
     height: 100%;
