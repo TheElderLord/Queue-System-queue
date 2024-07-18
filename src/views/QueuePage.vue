@@ -4,25 +4,29 @@ import { fetchQueueTickets } from '../utils/tickets.utils';
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
+
 import bachelor from "../assets/bach.gif"
 import res from "../assets/res.gif"
 import master from "../assets/master.gif"
+import type { InfoStorage } from '@/models/infoStorage.interface';
+import RunningLineVue from '../components/RunningLine.vue';
 
 const router = useRouter();
 
-
+const queueInfo = ref({} as InfoStorage);
+const branchSelected = ref<boolean>(true);
 
 const incomingTickets = ref<Ticket[]>([]);
 const tickets = ref<(Ticket | null)[]>(Array(6).fill(null));
-const branchId = ref<number>(0);
-const branchSelected = ref<boolean>(true);
+
+
 
 const audioContext = ref<AudioContext | null>(null);
 const VoicePlayList: string[] = [];
 const audioInitialized = ref(false);
 
 const getQueueTickets = async () => {
-    incomingTickets.value = await fetchQueueTickets(branchId.value);
+    incomingTickets.value = await fetchQueueTickets(queueInfo.value.branchId);
     if (incomingTickets.value.length > 0) {
         const latestTicket = incomingTickets.value[incomingTickets.value.length - 1];
         if (!tickets.value.some(ticket => ticket && ticket.id === latestTicket.id)) {
@@ -40,9 +44,9 @@ const handleTaps = () => {
 }
 
 const getBranchIdFromLocalStorage = () => {
-    const branch = localStorage.getItem("branch");
-    if (branch) {
-        branchId.value = parseInt(branch);
+    const infoObject = localStorage.getItem("branch");
+    if (infoObject) {
+        queueInfo.value = JSON.parse(infoObject) as InfoStorage;
     } else {
         branchSelected.value = false;
     }
@@ -165,7 +169,7 @@ const initializeAudioContext = () => {
 }
 
 const getBranchQR = () => {
-    switch (branchId.value) {
+    switch (queueInfo.value.branchId) {
         case 1: return res;
         case 2: return bachelor;
         case 3: return master;
@@ -206,36 +210,43 @@ onMounted(() => {
                 </div>
             </div>
         </div>
-        <footer class="flex w-full">
-            <div class="logo  flex w-full">
-                <div class="img img flex justify-center items-center">
-                    <img src="../assets/logo.jpeg" alt="" width="300">
-                </div>
-                <div class="text text-center flex justify-center items-center">
-                    <div>
-                        <div>Астана Медицина Университеті</div><br>
-                        <div>Медицинский Университет Астана</div><br>
-                        <div>Astana Medical University</div><br>
+        <footer class=" w-full">
+            <div class="flex w-full">
+                <div class="logo  flex w-full">
+                    <div class="img img flex justify-center items-center">
+                        <img src="../assets/logo.jpeg" alt="" width="250">
+                    </div>
+                    <div class="text text-center flex justify-center items-center">
+                        <div>
+                            <div>Астана Медицина Университеті</div><br>
+                            <div>Медицинский Университет Астана</div><br>
+                            <div>Astana Medical University</div><br>
+                        </div>
                     </div>
                 </div>
+                <div class="qr w-full flex justify-around">
+                    <div class="img flex justify-center items-center">
+                        <img :src="getBranchQR()" alt="" width="250">
+                    </div>
+                    <div class="text text-center flex justify-center items-center">
+                        <div>
+                            <div>Сканируйте QR</div><br>
+                        </div>
+                    </div>
+                    <v-btn @click="handleTaps()" class="absolute bottom-0 right-0"><i class="fas fa-tools"></i></v-btn>
+                </div>
+
             </div>
-            <div class="qr w-full flex justify-around">
-                <div class="img flex justify-center items-center">
-                    <img :src="getBranchQR()" alt="" width="300">
-                </div>
-                <div class="text text-center flex justify-center items-center">
-                    <div>
-                        <div>Сканируйте QR</div><br>
-                    </div>
-                </div>
-                <v-btn @click="handleTaps()" class="absolute bottom-0 right-0"><i class="fas fa-tools"></i></v-btn>
+            <div class="runningText">
+                <RunningLineVue>
+                    {{ queueInfo.running_text || "Добро пожаловать" }}
+                </RunningLineVue>
             </div>
         </footer>
     </div>
 </template>
 
 <style lang="scss" scoped>
-
 .queue-container {
     width: 100%;
     height: 100%;
@@ -243,7 +254,7 @@ onMounted(() => {
 
 .text {
     div {
-        font-size: 30px;
+        font-size: 24px;
         padding: auto;
         font-weight: bold;
         color: rgb(82, 19, 141);
