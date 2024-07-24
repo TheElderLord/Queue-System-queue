@@ -5,11 +5,23 @@ import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 
+const videos = [
+    "src/assets/clips/VIDEO/1.mp4",
+    "src/assets/clips/VIDEO/2.mp4",
+    "src/assets/clips/VIDEO/3.mp4",
+    "src/assets/clips/VIDEO/4.mp4",
+    "src/assets/clips/VIDEO/5.mp4",
+    "src/assets/clips/VIDEO/6.mp4",
+]
+
 import bachelor from "../assets/bach.gif"
 import res from "../assets/res.gif"
 import master from "../assets/master.gif"
+
+
 import type { InfoStorage } from '@/models/infoStorage.interface';
 import RunningLineVue from '../components/RunningLine.vue';
+import ShowClips from '@/components/ShowClips.vue';
 
 const router = useRouter();
 
@@ -190,13 +202,8 @@ onMounted(() => {
         <button v-if="!audioInitialized" @click="initializeAudioContext">Initialize Audio</button>
         <div v-else class="mainBlock w-full h-4/6 flex">
             <div class="leftBlock w-3/5 h-full">
-                <iframe class="w-full h-full"
-                    src="https://www.youtube.com/embed/5VPE2sA6hXw?playlist=5VPE2sA6hXw&loop=1&autoplay=1&mute=1"
-                    title="Alan Walker, Dua Lipa, Coldplay, Martin Garrix &amp; Kygo, The Chainsmokers Style 🔥 Summer Vibes #5"
-                    frameborder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    referrerpolicy="strict-origin-when-cross-origin" allowfullscreen>
-                </iframe>
+                <ShowClips  :videos="videos"/>
+                
             </div>
             <div class="tickets w-2/5 h-full flex flex-wrap bg-purple-800">
                 <div class="ticket w-full flex justify-around text-2xl">
