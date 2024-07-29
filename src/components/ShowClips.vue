@@ -48,7 +48,7 @@ const youtubeEmbedUrl = (url: string): string => {
   if (match && match[1]) {
     videoId = match[1];
   }
-  return `https://www.youtube.com/embed/${videoId}?autoplay=1&loop=1&playlist=${videoId}`;
+  return `https://www.youtube.com/embed/${videoId}?autoplay=1&loop=1&playlist=${videoId}&mute=1`;
 };
 
 const playNextVideo = () => {
