@@ -6,12 +6,12 @@ import { useRouter } from 'vue-router';
 
 
 const videos = [
-    "src/assets/clips/VIDEO/1.mp4",
-    "src/assets/clips/VIDEO/2.mp4",
-    "src/assets/clips/VIDEO/3.mp4",
-    "src/assets/clips/VIDEO/4.mp4",
-    "src/assets/clips/VIDEO/5.mp4",
-    "src/assets/clips/VIDEO/6.mp4",
+    "https://youtu.be/93eXyHqSPv8",
+    "https://youtu.be/JPkui8Z06C8",
+    "https://youtu.be/9FVi63VqefM",
+    "https://youtu.be/NxC3V92BaPA",
+    "https://youtu.be/Vq8TsZXmVXw",
+    "https://youtu.be/TvrBJIbNYpY",
 ]
 
 import bachelor from "../assets/bach.gif"

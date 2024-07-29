@@ -38,5 +38,4 @@ coverage
 
 test-results/
 playwright-report/
-src/assets/clips
-clips
+
