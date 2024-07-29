@@ -2,6 +2,7 @@
   <div class="video-player">
     <template v-if="isYouTubeVideo(currentVideoSrc)">
       <iframe
+        ref="iframe"
         :src="youtubeEmbedUrl(currentVideoSrc)"
         frameborder="0"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -21,7 +22,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref,computed } from 'vue';
+import { ref, computed } from 'vue';
 
 interface Video {
   type: 'youtube' | 'local';
@@ -47,7 +48,7 @@ const youtubeEmbedUrl = (url: string): string => {
   if (match && match[1]) {
     videoId = match[1];
   }
-  return `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+  return `https://www.youtube.com/embed/${videoId}?autoplay=1&loop=1&playlist=${videoId}`;
 };
 
 const playNextVideo = () => {
