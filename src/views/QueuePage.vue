@@ -21,17 +21,38 @@ const audioContext = ref<AudioContext | null>(null);
 const VoicePlayList: string[] = [];
 const audioInitialized = ref(false);
 
+// const getQueueTickets = async () => {
+//     incomingTickets.value = await fetchQueueTickets(branchId.value);
+//     if (incomingTickets.value.length > 0) {
+//         const latestTicket = incomingTickets.value[incomingTickets.value.length - 1];
+//         if (!tickets.value.some(ticket => ticket && ticket.id === latestTicket.id)) {
+//             tickets.value.unshift(latestTicket);
+//             const lang = latestTicket.language === "KAZ" ? "KZ" : latestTicket.language === "RUS" ? "RU" : "EN";
+//             createVoicePlayList(latestTicket, lang);
+//             playAudio();
+//             tickets.value.pop(); // Remove the last ticket to keep the array size fixed
+//         }
+//     }
+// }
+
 const getQueueTickets = async () => {
-    incomingTickets.value = await fetchQueueTickets(branchId.value);
-    if (incomingTickets.value.length > 0) {
-        const latestTicket = incomingTickets.value[incomingTickets.value.length - 1];
-        if (!tickets.value.some(ticket => ticket && ticket.id === latestTicket.id)) {
-            tickets.value.unshift(latestTicket);
-            const lang = latestTicket.language === "KAZ" ? "KZ" : latestTicket.language === "RUS" ? "RU" : "EN";
-            createVoicePlayList(latestTicket, lang);
-            playAudio();
-            tickets.value.pop(); // Remove the last ticket to keep the array size fixed
-        }
+
+    // incomingTickets.value = await fetchQueueTickets(branchId.value);
+    tickets.value = await fetchQueueTickets(branchId.value);
+    if (tickets.value.length > 0) {
+        // const latestTicket = incomingTickets.value[incomingTickets.value.length - 1];
+        tickets.value.map(e => {
+            const lang = e?.language === "KAZ" ? "KZ" : e?.language === "RUS" ? "RU" : "EN";
+            // createVoicePlayList(e, lang);
+            // playAudio();
+            // tickets.value.pop();
+        })
+        // const latestTicket = tickets.value[tickets.value.length - 1];
+        // if (!tickets.value.some(ticket => ticket && ticket.id === latestTicket.id)) {
+        //    tickets.value.unshift(latestTicket);
+        // tickets.value.push(latestTicket);
+        // Remove the last ticket to keep the array size fixed
+        // }
     }
 }
 
@@ -235,7 +256,6 @@ onMounted(() => {
 </template>
 
 <style lang="scss" scoped>
-
 .queue-container {
     width: 100%;
     height: 100%;
