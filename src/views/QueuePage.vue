@@ -230,8 +230,8 @@ onMounted(() => {
                 </div>
                 <div v-for="ticket in tickets" :key="ticket?.id ?? 'placeholder'"
                     class="ticket w-full flex justify-around text-2xl">
-                    <div class="number w-full text-center">{{ ticket?.ticketNumber ?? '-' }}</div>
-                    <div class="window w-full text-center">{{ ticket?.windowNum ?? '-' }}</div>
+                    <div class="number w-full text-center text-5xl">{{ ticket?.ticketNumber ?? '-' }}</div>
+                    <div class="window w-full text-center text-5xl">{{ ticket?.windowNum ?? '-' }}</div>
                 </div>
             </div>
         </div>
