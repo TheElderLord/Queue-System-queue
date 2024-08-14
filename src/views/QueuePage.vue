@@ -53,20 +53,20 @@ const audioInitialized = ref(false);
 // }
 
 const getQueueTickets = async () => {
-    incomingTickets.value = await fetchQueueTickets(queueInfo.value.branchId);
-    if (tickets.value.length > 0) {
-        incomingTickets.value.map(e => {
-            const latestTicket = e;
-            if (!tickets.value.some(ticket => ticket && ticket.id === latestTicket.id)) {
-                tickets.value.unshift(latestTicket);
-                const lang = latestTicket.language === "KAZ" ? "KZ" : latestTicket.language === "RUS" ? "RU" : "EN";
-                // createVoicePlayList(latestTicket, lang);
-                // playAudio();
-                tickets.value.pop(); // Remove the last ticket to keep the array size fixed
-            }
-        })
+    tickets.value = await fetchQueueTickets(queueInfo.value.branchId);
+    // if (tickets.value.length > 0) {
+    //     incomingTickets.value.map(e => {
+    //         const latestTicket = e;
+    //         if (!tickets.value.some(ticket => ticket && ticket.id === latestTicket.id)) {
+    //             tickets.value.unshift(latestTicket);
+    //             const lang = latestTicket.language === "KAZ" ? "KZ" : latestTicket.language === "RUS" ? "RU" : "EN";
+    //             // createVoicePlayList(latestTicket, lang);
+    //             // playAudio();
+    //             tickets.value.pop(); // Remove the last ticket to keep the array size fixed
+    //         }
+    //     })
 
-    }
+    // }
 }
 
 const handleTaps = () => {
