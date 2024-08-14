@@ -53,17 +53,20 @@ const audioInitialized = ref(false);
 // }
 
 const getQueueTickets = async () => {
-    tickets.value = await fetchQueueTickets(queueInfo.value.branchId);
-    // if (tickets.value.length > 0) {
-    //     const latestTicket = incomingTickets.value[incomingTickets.value.length - 1];
-    //     if (!tickets.value.some(ticket => ticket && ticket.id === latestTicket.id)) {
-    //         tickets.value.unshift(latestTicket);
-    //         const lang = latestTicket.language === "KAZ" ? "KZ" : latestTicket.language === "RUS" ? "RU" : "EN";
-    //         createVoicePlayList(latestTicket, lang);
-    //         playAudio();
-    //         tickets.value.pop(); // Remove the last ticket to keep the array size fixed
-    //     }
-    // }
+    incomingTickets.value = await fetchQueueTickets(queueInfo.value.branchId);
+    if (tickets.value.length > 0) {
+        incomingTickets.value.map(e => {
+            const latestTicket = e;
+            if (!tickets.value.some(ticket => ticket && ticket.id === latestTicket.id)) {
+                tickets.value.unshift(latestTicket);
+                const lang = latestTicket.language === "KAZ" ? "KZ" : latestTicket.language === "RUS" ? "RU" : "EN";
+                // createVoicePlayList(latestTicket, lang);
+                // playAudio();
+                tickets.value.pop(); // Remove the last ticket to keep the array size fixed
+            }
+        })
+
+    }
 }
 
 const handleTaps = () => {
@@ -217,8 +220,8 @@ onMounted(() => {
         <button v-if="!audioInitialized" @click="initializeAudioContext">Initialize Audio</button>
         <div v-else class="mainBlock w-full h-4/6 flex">
             <div class="leftBlock w-3/5 h-full">
-                <ShowClips  :videos="videos"/>
-                
+                <ShowClips :videos="videos" />
+
             </div>
             <div class="tickets w-2/5 h-full flex flex-wrap bg-purple-800">
                 <div class="ticket w-full flex justify-around text-2xl">
