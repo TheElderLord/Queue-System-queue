@@ -43,7 +43,7 @@ const isYouTubeVideo = (url: string): boolean => {
 
 const youtubeEmbedUrl = (url: string): string => {
   let videoId = '';
-  const youtubeRegex = /(?:youtube\.com\/(?:[^/]+\/[^/]+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
+  const youtubeRegex = /(?:youtube\.com\/(?:[^/]+\/[^/]+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\s]{11})/i;
   const match = url.match(youtubeRegex);
   if (match && match[1]) {
     videoId = match[1];

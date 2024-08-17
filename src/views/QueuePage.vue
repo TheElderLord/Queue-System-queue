@@ -19,9 +19,9 @@ import res from "../assets/res.gif"
 import master from "../assets/master.gif"
 
 
-import type { InfoStorage } from '@/models/infoStorage.interface';
+import type { InfoStorage } from '../models/infoStorage.interface';
 import RunningLineVue from '../components/RunningLine.vue';
-import ShowClips from '@/components/ShowClips.vue';
+import ShowClips from '../components/ShowClips.vue';
 
 const router = useRouter();
 
@@ -54,19 +54,19 @@ const audioInitialized = ref(false);
 
 const getQueueTickets = async () => {
     tickets.value = await fetchQueueTickets(queueInfo.value.branchId);
-    // if (tickets.value.length > 0) {
-    //     incomingTickets.value.map(e => {
-    //         const latestTicket = e;
-    //         if (!tickets.value.some(ticket => ticket && ticket.id === latestTicket.id)) {
-    //             tickets.value.unshift(latestTicket);
-    //             const lang = latestTicket.language === "KAZ" ? "KZ" : latestTicket.language === "RUS" ? "RU" : "EN";
-    //             // createVoicePlayList(latestTicket, lang);
-    //             // playAudio();
-    //             tickets.value.pop(); // Remove the last ticket to keep the array size fixed
-    //         }
-    //     })
+    if (tickets.value.length > 0) {
+        incomingTickets.value.map(e => {
+            const latestTicket = e;
+            if (!tickets.value.some(ticket => ticket && ticket.id === latestTicket.id)) {
+                tickets.value.unshift(latestTicket);
+                const lang = latestTicket.language === "KAZ" ? "KZ" : latestTicket.language === "RUS" ? "RU" : "EN";
+                createVoicePlayList(latestTicket, lang);
+                playAudio();
+                tickets.value.pop(); // Remove the last ticket to keep the array size fixed
+            }
+        })
 
-    // }
+    }
 }
 
 const handleTaps = () => {
@@ -251,7 +251,7 @@ onMounted(() => {
                 </div>
                 <div class="qr w-full flex justify-around">
                     <div class="img flex justify-center items-center">
-                        <img :src="getBranchQR()" alt="" width="250">
+                        <!-- <img :src="getBranchQR()" alt="" width="250"> -->
                     </div>
                     <div class="text text-center flex justify-center items-center">
                         <div>
