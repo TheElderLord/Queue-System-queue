@@ -251,7 +251,7 @@ onMounted(() => {
                 </div>
                 <div class="qr w-full flex justify-around">
                     <div class="img flex justify-center items-center">
-                        <!-- <img :src="getBranchQR()" alt="" width="250"> -->
+                        <img :src="getBranchQR()" alt="" width="250">
                     </div>
                     <div class="text text-center flex justify-center items-center">
                         <div>
