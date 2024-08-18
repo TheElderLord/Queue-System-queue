@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Ticket } from '../models/ticket.interface';
 import { fetchQueueTickets } from '../utils/tickets.utils';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 
 
@@ -29,7 +29,7 @@ const queueInfo = ref({} as InfoStorage);
 const branchSelected = ref<boolean>(true);
 
 const incomingTickets = ref<Ticket[]>([]);
-const tickets = ref<(Ticket | null)[]>(Array(6).fill(null));
+const tickets = ref<(Ticket | null)[]>([]);
 
 
 
@@ -53,20 +53,29 @@ const audioInitialized = ref(false);
 // }
 
 const getQueueTickets = async () => {
-    tickets.value = await fetchQueueTickets(queueInfo.value.branchId);
-    if (tickets.value.length > 0) {
+    incomingTickets.value = await fetchQueueTickets(queueInfo.value.branchId);
+    if (incomingTickets.value.length > 0) {
+        let finished = false;
         incomingTickets.value.map(e => {
             const latestTicket = e;
             if (!tickets.value.some(ticket => ticket && ticket.id === latestTicket.id)) {
+                finished=true;
                 tickets.value.unshift(latestTicket);
-                const lang = latestTicket.language === "KAZ" ? "KZ" : latestTicket.language === "RUS" ? "RU" : "EN";
-                createVoicePlayList(latestTicket, lang);
-                playAudio();
-                tickets.value.pop(); // Remove the last ticket to keep the array size fixed
+                // const lang = latestTicket.language === "KAZ" ? "KZ" : latestTicket.language === "RUS" ? "RU" : "EN";
+                // createVoicePlayList(latestTicket, lang);
+                // playAudio();
+                // tickets.value.pop(); // Remove the last ticket to keep the array size fixed
             }
-        })
+        });
+        if(finished){
+            const last = tickets.value[tickets.value.length-1];
+            const lang = last.language === "KAZ" ? "KZ" : last.language === "RUS" ? "RU" : "EN";
+                createVoicePlayList(last, lang);
+                playAudio();
+        }
 
     }
+    console.log(tickets.value)
 }
 
 const handleTaps = () => {
@@ -207,6 +216,8 @@ const getBranchQR = () => {
 
 }
 
+
+
 onMounted(() => {
     getBranchIdFromLocalStorage();
     getQueueTickets();
@@ -228,10 +239,10 @@ onMounted(() => {
                     <div class="number w-full text-center">Номер</div>
                     <div class="window w-full text-center">Окно</div>
                 </div>
-                <div v-for="ticket in tickets" :key="ticket?.id ?? 'placeholder'"
+                <div v-for="ticket in tickets" :key="ticket?.id"
                     class="ticket w-full flex justify-around text-2xl">
-                    <div class="number w-full text-center text-5xl">{{ ticket?.ticketNumber ?? '-' }}</div>
-                    <div class="window w-full text-center text-5xl">{{ ticket?.windowNum ?? '-' }}</div>
+                    <div class="number w-full text-center text-5xl">{{ ticket.ticketNumber ?? '-' }}</div>
+                    <div class="window w-full text-center text-5xl">{{ ticket.windowNum ?? '-' }}</div>
                 </div>
             </div>
         </div>
