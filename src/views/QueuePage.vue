@@ -30,6 +30,7 @@ const branchSelected = ref<boolean>(true);
 
 const incomingTickets = ref<Ticket[]>([]);
 const tickets = ref<(Ticket | null)[]>([]);
+const allTickets = ref<(Ticket | null)[]>([]);
 
 
 
@@ -58,26 +59,31 @@ const getQueueTickets = async () => {
         let finished = false;
         incomingTickets.value.map(e => {
             const latestTicket = e;
-            if (!tickets.value.some(ticket => ticket && ticket.id === latestTicket.id)) {
-                finished=true;
+            if (!allTickets.value.some(ticket => ticket && ticket.id === latestTicket.id)) {
+                finished = true;
+                allTickets.value.push(latestTicket);
                 tickets.value.unshift(latestTicket);
+
                 // const lang = latestTicket.language === "KAZ" ? "KZ" : latestTicket.language === "RUS" ? "RU" : "EN";
                 // createVoicePlayList(latestTicket, lang);
                 // playAudio();
                 // tickets.value.pop(); // Remove the last ticket to keep the array size fixed
             }
         });
-       
-        if(finished){
+
+        if (tickets.value.length > 10) {
+            tickets.value.splice(10);
+        }
+        if (finished) {
             const last = tickets.value[0];
             const lang = last.language === "KAZ" ? "KZ" : last.language === "RUS" ? "RU" : "EN";
-                createVoicePlayList(last, lang);
-                playAudio();
-        //         if (tickets.value.length > 12) {
-        //     tickets.value.splice(12); // Removes all elements after the 10th one
-        // }
+            createVoicePlayList(last, lang);
+            playAudio();
+            //         if (tickets.value.length > 12) {
+            //     tickets.value.splice(12); // Removes all elements after the 10th one
+            // }
         }
-         
+
 
     }
     console.log(tickets.value)
@@ -222,6 +228,11 @@ const getBranchQR = () => {
 }
 
 
+// watch(tickets.value,()=>{
+//     if(tickets.value.length>12){
+//         tickets.value.splice(12); 
+//     }
+// })
 
 onMounted(() => {
     getBranchIdFromLocalStorage();
@@ -244,8 +255,7 @@ onMounted(() => {
                     <div class="number w-full text-center">Номер</div>
                     <div class="window w-full text-center">Окно</div>
                 </div>
-                <div v-for="ticket in tickets" :key="ticket?.id"
-                    class="ticket w-full flex justify-around text-2xl">
+                <div v-for="ticket in tickets" :key="ticket?.id" class="ticket w-full flex justify-around text-2xl">
                     <div class="number w-full text-center text-5xl">{{ ticket.ticketNumber ?? '-' }}</div>
                     <div class="window w-full text-center text-5xl">{{ ticket.windowNum ?? '-' }}</div>
                 </div>
