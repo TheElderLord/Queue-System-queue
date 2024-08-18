@@ -73,9 +73,9 @@ const getQueueTickets = async () => {
             const lang = last.language === "KAZ" ? "KZ" : last.language === "RUS" ? "RU" : "EN";
                 createVoicePlayList(last, lang);
                 playAudio();
-                if (tickets.value.length > 12) {
-            tickets.value.splice(12); // Removes all elements after the 10th one
-        }
+        //         if (tickets.value.length > 12) {
+        //     tickets.value.splice(12); // Removes all elements after the 10th one
+        // }
         }
          
 
@@ -239,7 +239,7 @@ onMounted(() => {
                 <ShowClips :videos="videos" />
 
             </div>
-            <div class="tickets w-2/5 h-full flex flex-wrap bg-purple-800">
+            <div class="tickets w-2/5 h-full flex flex-wrap bg-purple-800 overflow-hidden">
                 <div class="ticket w-full flex justify-around text-2xl">
                     <div class="number w-full text-center">Номер</div>
                     <div class="window w-full text-center">Окно</div>
