@@ -67,15 +67,17 @@ const getQueueTickets = async () => {
                 // tickets.value.pop(); // Remove the last ticket to keep the array size fixed
             }
         });
-        // if (tickets.value.length > 10) {
-        //     tickets.value.splice(10); // Removes all elements after the 10th one
-        // }
+       
         if(finished){
             const last = tickets.value[0];
             const lang = last.language === "KAZ" ? "KZ" : last.language === "RUS" ? "RU" : "EN";
                 createVoicePlayList(last, lang);
                 playAudio();
+                if (tickets.value.length > 12) {
+            tickets.value.splice(12); // Removes all elements after the 10th one
         }
+        }
+         
 
     }
     console.log(tickets.value)
