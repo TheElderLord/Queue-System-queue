@@ -55,6 +55,11 @@ const audioInitialized = ref(false);
 
 const getQueueTickets = async () => {
     tickets.value = await fetchQueueTickets(queueInfo.value.branchId);
+    tickets.value.sort((a, b) => {
+        return new Date(a.serviceStartTime).getTime() - new Date(b.serviceStartTime).getTime();
+    });
+
+
     // incomingTickets.value = await fetchQueueTickets(queueInfo.value.branchId);
     // if (incomingTickets.value.length > 0) {
     //     let finished = false;
