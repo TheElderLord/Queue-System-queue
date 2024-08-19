@@ -61,7 +61,7 @@ const getQueueTickets = async () => {
             const latestTicket = e;
             if (!allTickets.value.some(ticket => ticket && ticket.id === latestTicket.id)) {
                 finished = true;
-                allTickets.value.push(latestTicket);
+                allTickets.value.unshift(latestTicket);
                 tickets.value.unshift(latestTicket);
 
                 // const lang = latestTicket.language === "KAZ" ? "KZ" : latestTicket.language === "RUS" ? "RU" : "EN";
@@ -73,6 +73,9 @@ const getQueueTickets = async () => {
 
         if (tickets.value.length > 10) {
             tickets.value.splice(10);
+        }
+        if(allTickets.value.length>30){
+            allTickets.value.splice(30);
         }
         if (finished) {
             const last = tickets.value[0];
