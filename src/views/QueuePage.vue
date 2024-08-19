@@ -54,41 +54,42 @@ const audioInitialized = ref(false);
 // }
 
 const getQueueTickets = async () => {
-    incomingTickets.value = await fetchQueueTickets(queueInfo.value.branchId);
-    if (incomingTickets.value.length > 0) {
-        let finished = false;
-        incomingTickets.value.map(e => {
-            const latestTicket = e;
-            if (!allTickets.value.some(ticket => ticket && ticket.id === latestTicket.id)) {
-                finished = true;
-                allTickets.value.unshift(latestTicket);
-                tickets.value.unshift(latestTicket);
+    tickets.value = await fetchQueueTickets(queueInfo.value.branchId);
+    // incomingTickets.value = await fetchQueueTickets(queueInfo.value.branchId);
+    // if (incomingTickets.value.length > 0) {
+    //     let finished = false;
+    //     incomingTickets.value.map(e => {
+    //         const latestTicket = e;
+    //         if (!allTickets.value.some(ticket => ticket && ticket.id === latestTicket.id)) {
+    //             finished = true;
+    //             allTickets.value.unshift(latestTicket);
+    //             tickets.value.unshift(latestTicket);
 
-                // const lang = latestTicket.language === "KAZ" ? "KZ" : latestTicket.language === "RUS" ? "RU" : "EN";
-                // createVoicePlayList(latestTicket, lang);
-                // playAudio();
-                // tickets.value.pop(); // Remove the last ticket to keep the array size fixed
-            }
-        });
+    //             // const lang = latestTicket.language === "KAZ" ? "KZ" : latestTicket.language === "RUS" ? "RU" : "EN";
+    //             // createVoicePlayList(latestTicket, lang);
+    //             // playAudio();
+    //             // tickets.value.pop(); // Remove the last ticket to keep the array size fixed
+    //         }
+    //     });
 
-        if (tickets.value.length > 10) {
-            tickets.value.splice(10);
-        }
-        if(allTickets.value.length>30){
-            allTickets.value.splice(30);
-        }
-        if (finished) {
-            const last = tickets.value[0];
-            const lang = last.language === "KAZ" ? "KZ" : last.language === "RUS" ? "RU" : "EN";
-            createVoicePlayList(last, lang);
-            playAudio();
-            //         if (tickets.value.length > 12) {
-            //     tickets.value.splice(12); // Removes all elements after the 10th one
-            // }
-        }
+        // if (tickets.value.length > 10) {
+        //     tickets.value.splice(10);
+        // }
+        // if(allTickets.value.length>30){
+        //     allTickets.value.splice(30);
+        // }
+        // if (finished) {
+        //     const last = tickets.value[0];
+        //     const lang = last.language === "KAZ" ? "KZ" : last.language === "RUS" ? "RU" : "EN";
+        //     createVoicePlayList(last, lang);
+        //     playAudio();
+        //     //         if (tickets.value.length > 12) {
+        //     //     tickets.value.splice(12); // Removes all elements after the 10th one
+        //     // }
+        // }
 
 
-    }
+    // }
     console.log(tickets.value)
 }
 
