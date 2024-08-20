@@ -88,8 +88,8 @@ const getQueueTickets = async () => {
         });
         if (finished) {
             const last = tickets.value[0];
-            const lang = last.language === "KAZ" ? "KZ" : last.language === "RUS" ? "RU" : "EN";
-            createVoicePlayList(last, lang);
+            // const lang = last.language === "KAZ" ? "KZ" : last.language === "RUS" ? "RU" : "EN";
+            createVoicePlayList(last, "RU");
             playAudio();
             //         if (tickets.value.length > 12) {
             //     tickets.value.splice(12); // Removes all elements after the 10th one
@@ -231,6 +231,7 @@ const initializeAudioContext = () => {
 }
 
 const getBranchQR = () => {
+    
     switch (queueInfo.value.branchId) {
         case 1: return res;
         case 2: return bachelor;
@@ -238,6 +239,7 @@ const getBranchQR = () => {
     }
 
 }
+
 
 
 // watch(tickets.value,()=>{
@@ -289,7 +291,7 @@ onMounted(() => {
                 </div>
                 <div class="qr w-full flex justify-around">
                     <div class="img flex justify-center items-center">
-                        <img :src="getBranchQR()" alt="" width="250">
+                        <img v-if="queueInfo.show_qr" :src="getBranchQR()" alt="" width="250">
                     </div>
                     <div class="text text-center flex justify-center items-center">
                         <div>

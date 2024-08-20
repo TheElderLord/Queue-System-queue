@@ -28,8 +28,8 @@ const goMain = () => {
 
 onMounted(() => {
     const info = localStorage.getItem("branch");
-    if(info)
-    setInfo.value = JSON.parse(info) as InfoStorage;
+    if (info)
+        setInfo.value = JSON.parse(info) as InfoStorage;
     getBranches()
 })
 
@@ -51,10 +51,15 @@ onMounted(() => {
 
                 </select>
                 <div class="input-group flex-nowrap">
-                    
-                    <input v-model="setInfo.running_text" type="text" class="form-control" placeholder="Текст для бегущей строки" aria-label="Username" aria-describedby="addon-wrapping">
-                  </div>
 
+                    <input v-model="setInfo.running_text" type="text" class="form-control"
+                        placeholder="Текст для бегущей строки" aria-label="Username" aria-describedby="addon-wrapping">
+                </div>
+                <div class="qrShow text-center">
+                    <v-switch class="mx-auto"  v-model="setInfo.show_qr" label="Отображение QR" inset></v-switch>
+
+                </div>
+                
                 <v-btn class="m-4" @click="handleSelectBranches()">Сохранить</v-btn>
                 <v-btn class="m-4" @click="goMain()">В главную</v-btn>
             </div>
