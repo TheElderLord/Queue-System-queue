@@ -6,7 +6,7 @@ import { useRouter } from 'vue-router';
 
 
 const videos = [
-    "https://youtu.be/5LgavxNEiYQ",
+    "https://youtu.be/wmnw6Ulb6ps",
     "https://youtu.be/JPkui8Z06C8",
     "https://youtu.be/9FVi63VqefM",
     "https://youtu.be/NxC3V92BaPA",
