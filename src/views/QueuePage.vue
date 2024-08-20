@@ -6,7 +6,7 @@ import { useRouter } from 'vue-router';
 
 
 const videos = [
-    "https://youtu.be/gWj7fYleH9M?si=dLjVQhZRZhapk_bA",
+    "https://www.youtube.com/watch?v=_SKyUUKB74I",
     "https://youtu.be/JPkui8Z06C8",
     "https://youtu.be/9FVi63VqefM",
     "https://youtu.be/NxC3V92BaPA",
@@ -54,47 +54,50 @@ const audioInitialized = ref(false);
 // }
 
 const getQueueTickets = async () => {
-    tickets.value = await fetchQueueTickets(queueInfo.value.branchId);
-    tickets.value.sort((a, b) => {
-        return new Date(a.serviceStartTime).getTime() - new Date(b.serviceStartTime).getTime();
-    });
+    // tickets.value = await fetchQueueTickets(queueInfo.value.branchId);
+    // tickets.value.sort((a, b) => {
+    //     return new Date(a.serviceStartTime).getTime() - new Date(b.serviceStartTime).getTime();
+    // });
 
 
-    // incomingTickets.value = await fetchQueueTickets(queueInfo.value.branchId);
-    // if (incomingTickets.value.length > 0) {
-    //     let finished = false;
-    //     incomingTickets.value.map(e => {
-    //         const latestTicket = e;
-    //         if (!allTickets.value.some(ticket => ticket && ticket.id === latestTicket.id)) {
-    //             finished = true;
-    //             allTickets.value.unshift(latestTicket);
-    //             tickets.value.unshift(latestTicket);
+    incomingTickets.value = await fetchQueueTickets(queueInfo.value.branchId);
+    if (incomingTickets.value.length > 0) {
+        let finished = false;
+        incomingTickets.value.map(e => {
+            const latestTicket = e;
+            if (!allTickets.value.some(ticket => ticket && ticket.id === latestTicket.id)) {
+                finished = true;
+                allTickets.value.unshift(latestTicket);
+                tickets.value.unshift(latestTicket);
 
-    //             // const lang = latestTicket.language === "KAZ" ? "KZ" : latestTicket.language === "RUS" ? "RU" : "EN";
-    //             // createVoicePlayList(latestTicket, lang);
-    //             // playAudio();
-    //             // tickets.value.pop(); // Remove the last ticket to keep the array size fixed
-    //         }
-    //     });
+                // const lang = latestTicket.language === "KAZ" ? "KZ" : latestTicket.language === "RUS" ? "RU" : "EN";
+                // createVoicePlayList(latestTicket, lang);
+                // playAudio();
+                // tickets.value.pop(); // Remove the last ticket to keep the array size fixed
+            }
+        });
 
-        // if (tickets.value.length > 10) {
-        //     tickets.value.splice(10);
-        // }
-        // if(allTickets.value.length>30){
-        //     allTickets.value.splice(30);
-        // }
-        // if (finished) {
-        //     const last = tickets.value[0];
-        //     const lang = last.language === "KAZ" ? "KZ" : last.language === "RUS" ? "RU" : "EN";
-        //     createVoicePlayList(last, lang);
-        //     playAudio();
-        //     //         if (tickets.value.length > 12) {
-        //     //     tickets.value.splice(12); // Removes all elements after the 10th one
-        //     // }
-        // }
+        if (tickets.value.length > 10) {
+            tickets.value.splice(10);
+        }
+        if (allTickets.value.length > 20) {
+            allTickets.value.splice(20);
+        }
+        tickets.value.sort((a, b) => {
+            return new Date(b.serviceStartTime).getTime() - new Date(a.serviceStartTime).getTime();
+        });
+        if (finished) {
+            const last = tickets.value[0];
+            const lang = last.language === "KAZ" ? "KZ" : last.language === "RUS" ? "RU" : "EN";
+            createVoicePlayList(last, lang);
+            playAudio();
+            //         if (tickets.value.length > 12) {
+            //     tickets.value.splice(12); // Removes all elements after the 10th one
+            // }
+        }
 
 
-    // }
+    }
     console.log(tickets.value)
 }
 
@@ -286,7 +289,7 @@ onMounted(() => {
                 </div>
                 <div class="qr w-full flex justify-around">
                     <div class="img flex justify-center items-center">
-                        <img :src="getBranchQR()" alt="" width="250">
+                        <!-- <img :src="getBranchQR()" alt="" width="250"> -->
                     </div>
                     <div class="text text-center flex justify-center items-center">
                         <div>
