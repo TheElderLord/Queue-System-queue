@@ -279,13 +279,13 @@ onMounted(() => {
             <div class="flex w-full">
                 <div class="logo  flex w-full">
                     <div class="img img flex justify-center items-center">
-                        <img src="../assets/logo.jpeg" alt="" width="250">
+                        <!-- <img src="../assets/logo.jpeg" alt="" width="250"> -->
                     </div>
                     <div class="text text-center flex justify-center items-center">
                         <div>
-                            <div>Астана Медицина Университеті</div><br>
+                            <!-- <div>Астана Медицина Университеті</div><br>
                             <div>Медицинский Университет Астана</div><br>
-                            <div>Astana Medical University</div><br>
+                            <div>Astana Medical University</div><br> -->
                         </div>
                     </div>
                 </div>
