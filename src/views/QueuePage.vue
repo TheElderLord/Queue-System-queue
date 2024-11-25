@@ -285,7 +285,7 @@ onMounted(() => {
             <div
                 v-for="(column, colIndex) in ticketColumns"
                 :key="colIndex"
-                class="tickets w-1/3 h-full flex flex-wrap bg-purple-800 overflow-hidden"
+                class="tickets w-1/3 h-full flex flex-wrap  overflow-hidden"
             >
                 <div class="ticket w-full flex justify-around text-2xl">
                     <div class="number w-full text-center">Номер</div>
@@ -360,7 +360,7 @@ onMounted(() => {
         font-size: 24px;
         padding: auto;
         font-weight: bold;
-        color: rgb(82, 19, 141);
+        color: black;
     }
 }
 .tickets {
@@ -370,6 +370,7 @@ onMounted(() => {
     flex-direction: column;
     gap: 10px; // Add spacing between rows
     overflow: hidden;
+    background-color: #06a9d1;
 
     .ticket {
         width: 100%;
@@ -394,7 +395,7 @@ onMounted(() => {
 
 .ticket {
     div {
-        color: yellow;
+        color: rgb(253, 253, 253);
         border: 2px solid white;
         display: flex;
         justify-content: center;
