@@ -251,7 +251,8 @@ const getBranchQR = () => {
 onMounted(() => {
     getBranchIdFromLocalStorage();
     getQueueTickets();
-    setInterval(getQueueTickets, 5000); // Refresh tickets every 3 seconds
+    setInterval(getQueueTickets, 5000);
+    initializeAudioContext(); // Refresh tickets every 3 seconds
 });
 </script>
 
