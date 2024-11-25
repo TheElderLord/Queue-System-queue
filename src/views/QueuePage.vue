@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Ticket } from '../models/ticket.interface';
 import { fetchQueueTickets } from '../utils/tickets.utils';
-import { onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 
 
@@ -239,6 +239,15 @@ const getBranchQR = () => {
     }
 
 }
+const ticketColumns = computed(() => {
+    const chunkSize = 5; // Number of rows per column
+    const columns = 3; // Number of columns
+    const result = [];
+    for (let i = 0; i < columns; i++) {
+        result.push(tickets.value.slice(i * chunkSize, (i + 1) * chunkSize));
+    }
+    return result;
+});
 
 
 
@@ -252,30 +261,51 @@ onMounted(() => {
     getBranchIdFromLocalStorage();
     getQueueTickets();
     setInterval(getQueueTickets, 5000);
-    initializeAudioContext(); // Refresh tickets every 3 seconds
+
+//     document.addEventListener('DOMContentLoaded', () => {
+//     const button = document.getElementById('audioButton');
+
+//     if (button) {
+//         button.click();
+//         console.log("Audio initialization triggered programmatically!");
+//     } else {
+//         console.error("Audio button not found!");
+//     }
+// });
+
+    // initializeAudioContext(); // Refresh tickets every 3 seconds
 });
 </script>
 
 <template>
     <div class="queue-container h-full w-full p-4">
         <h1 v-if="!branchSelected" class="text-3xl text-red-600 text-center">Выберите отделение в настройках</h1>
-        <button class="initbutton" v-if="!audioInitialized" @click="initializeAudioContext">Инициализация аудио</button>
+        <button id="audioButton" class="initbutton" v-if="!audioInitialized" @click="initializeAudioContext">Инициализация аудио</button>
         <div v-else class="mainBlock w-full h-4/6 flex">
-            <div class="leftBlock w-3/5 h-full">
-                <!-- <ShowClips :videos="videos" /> -->
-
-            </div>
-            <div class="tickets w-2/5 h-full flex flex-wrap bg-purple-800 overflow-hidden">
+            <div
+                v-for="(column, colIndex) in ticketColumns"
+                :key="colIndex"
+                class="tickets w-1/3 h-full flex flex-wrap bg-purple-800 overflow-hidden"
+            >
                 <div class="ticket w-full flex justify-around text-2xl">
                     <div class="number w-full text-center">Номер</div>
                     <div class="window w-full text-center">Окно</div>
                 </div>
-                <div v-for="ticket in tickets" :key="ticket?.id" class="ticket w-full flex justify-around text-2xl">
-                    <div class="number w-full text-center text-5xl">{{ ticket.ticketNumber ?? '-' }}</div>
-                    <div class="window w-full text-center text-5xl">{{ ticket.windowNum ?? '-' }}</div>
+                <div
+                    v-for="ticket in column"
+                    :key="ticket?.id"
+                    class="ticket w-full flex justify-around text-2xl"
+                >
+                    <div class="number w-full text-center text-5xl">
+                        {{ ticket?.ticketNumber ?? '-' }}
+                    </div>
+                    <div class="window w-full text-center text-5xl">
+                        {{ ticket?.windowNum ?? '-' }}
+                    </div>
                 </div>
             </div>
         </div>
+        
         <footer class=" w-full">
             <div class="flex w-full">
                 <div class="logo  flex w-full">
@@ -333,6 +363,34 @@ onMounted(() => {
         color: rgb(82, 19, 141);
     }
 }
+.tickets {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px; // Add spacing between rows
+    overflow: hidden;
+
+    .ticket {
+        width: 100%;
+        box-shadow: rgba(0, 0, 0, 0.19) 0px 10px 20px,
+            rgba(0, 0, 0, 0.23) 0px 6px 6px;
+        border: 1px solid black;
+        padding: 0.5rem;
+        margin-bottom: 1rem;
+        border-radius: 0.5rem;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        font-size: 20px;
+
+        div {
+            width: 50%;
+            text-align: center;
+        }
+    }
+}
+
 
 .ticket {
     div {
