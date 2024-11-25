@@ -21,7 +21,7 @@ import master from "../assets/master.gif"
 
 import type { InfoStorage } from '../models/infoStorage.interface';
 import RunningLineVue from '../components/RunningLine.vue';
-import ShowClips from '../components/ShowClips.vue';
+// import ShowClips from '../components/ShowClips.vue';
 
 const router = useRouter();
 
@@ -258,10 +258,10 @@ onMounted(() => {
 <template>
     <div class="queue-container h-full w-full p-4">
         <h1 v-if="!branchSelected" class="text-3xl text-red-600 text-center">Выберите отделение в настройках</h1>
-        <button v-if="!audioInitialized" @click="initializeAudioContext">Initialize Audio</button>
+        <button class="initbutton" v-if="!audioInitialized" @click="initializeAudioContext">Инициализация аудио</button>
         <div v-else class="mainBlock w-full h-4/6 flex">
             <div class="leftBlock w-3/5 h-full">
-                <ShowClips :videos="videos" />
+                <!-- <ShowClips :videos="videos" /> -->
 
             </div>
             <div class="tickets w-2/5 h-full flex flex-wrap bg-purple-800 overflow-hidden">
@@ -315,6 +315,13 @@ onMounted(() => {
 .queue-container {
     width: 100%;
     height: 100%;
+}
+.initbutton{
+    position: absolute;
+    top: 20%;
+    left: 30%;
+    border: 3px solid black;
+    padding: .5rem;
 }
 
 .text {
