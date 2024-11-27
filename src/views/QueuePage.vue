@@ -88,8 +88,8 @@ const getQueueTickets = async () => {
         });
         if (finished) {
             const last = tickets.value[0];
-            // const lang = last.language === "KAZ" ? "KZ" : last.language === "RUS" ? "RU" : "EN";
-            createVoicePlayList(last, "RU");
+            const lang = last?.language === "KAZ" ? "KZ" : last?.language === "RUS" ? "RU" : "EN";
+            createVoicePlayList(last, lang);
             playAudio();
             //         if (tickets.value.length > 12) {
             //     tickets.value.splice(12); // Removes all elements after the 10th one
