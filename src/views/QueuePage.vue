@@ -291,7 +291,7 @@ onMounted(() => {
                             <div>Сканируйте QR</div><br>
                         </div>
                     </div>
-                    <v-btn @click="handleTaps()" class="absolute bottom-0 right-0"><i class="fas fa-tools"></i></v-btn>
+                    <v-btn @click="handleTaps()" class="w-24 h-24 absolute bottom-0 right-0"><i class="fas fa-tools"></i></v-btn>
                 </div>
 
             </div>
