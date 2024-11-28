@@ -61,7 +61,7 @@ const getQueueTickets = async () => {
         if (newTicketsAdded) {
             const latestTicket = Array.from(ticketsMap.value.values()).reduce((latest, current) => {
                 return new Date(current.serviceStartTime).getTime() > new Date(latest.serviceStartTime).getTime() ? current : latest;
-            }, incomingTickets[0]);
+            }, incomingTickets[incomingTickets.length-1]);
 
             const lang = latestTicket.language === "KAZ" ? "KZ" : latestTicket.language === "RUS" ? "RU" : "EN";
             await playAudioForTicket(latestTicket, lang);
