@@ -18,6 +18,7 @@ import * as directives from 'vuetify/directives'
 import 'material-design-icons-iconfont/dist/material-design-icons.css'
 import '@mdi/font/css/materialdesignicons.css'
 import '@fortawesome/fontawesome-free/js/all'
+import QrcodeVue from 'qrcode.vue';
 
 const app = createApp(App)
 
@@ -25,6 +26,8 @@ const vuetify = createVuetify({
   components,
   directives,
 })
+
+app.component('qrcode-vue', QrcodeVue);
 
 app.use(createPinia())
 app.use(router)

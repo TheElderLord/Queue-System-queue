@@ -4,12 +4,16 @@ import { fetchQueueTickets } from '../utils/tickets.utils';
 import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
-import bachelor from "../assets/bach.gif";
-import res from "../assets/res.gif";
-import master from "../assets/master.gif";
-
 import type { InfoStorage } from '../models/infoStorage.interface';
 import RunningLineVue from '../components/RunningLine.vue';
+
+import QrcodeVue from 'qrcode.vue';
+
+const host = import.meta.env.VITE_SERVER_API_HOST;
+const terminalPort = import.meta.env.VITE_TERMINAL_PORT;
+
+
+
 
 const router = useRouter();
 
@@ -28,7 +32,7 @@ const getQueueTickets = async () => {
     isFetching = true;
 
     try {
-        const incomingTickets = await fetchQueueTickets(queueInfo.value.branchId);
+        const incomingTickets = await fetchQueueTickets(queueInfo.value);
         let newTicketsAdded = false;
 
         incomingTickets.forEach(ticket => {
@@ -215,12 +219,8 @@ const ticketColumns = computed(() => {
     return result;
 });
 const getBranchQR = () => {
-    
-    switch (queueInfo.value.branchId) {
-        case 1: return res;
-        case 2: return bachelor;
-        case 3: return master;
-    }
+    return `http://${host}:${terminalPort}?branch=${queueInfo.value.branchId}`
+   
 }
 
 const handleTaps = () => {
@@ -229,9 +229,9 @@ const handleTaps = () => {
 
 
 onMounted(() => {
-    // getBranchIdFromLocalStorage();
-    // getQueueTickets();
-    // initializeAudioContext();
+    getBranchIdFromLocalStorage();
+    getQueueTickets();
+    initializeAudioContext();
 });
 </script>
 
@@ -278,9 +278,13 @@ onMounted(() => {
                         </div>
                     </div>
                 </div>
-                <div class="qr w-full flex justify-around">
+                <div class="qr w-full flex justify-around my-4">
                     <div class="img flex justify-center items-center">
-                        <img v-if="queueInfo.show_qr" :src="getBranchQR()" alt="" width="250">
+                        <qrcode-vue  :size="200"
+                        level="H"
+                        background="#ffffff"
+                        foreground="#000000"
+                        render-as="svg"  :value="getBranchQR()"></qrcode-vue>
                     </div>
                     <div class="text text-center flex justify-center items-center">
                         <div>

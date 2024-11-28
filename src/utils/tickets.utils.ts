@@ -3,11 +3,14 @@ import axios, { type AxiosResponse } from "axios";
 
 import {  QUEUE_URL, BASE_URL } from "./base.utils";
 import type { Ticket } from "@/models/ticket.interface";
+import type { InfoStorage } from "@/models/infoStorage.interface";
 
 
-export const fetchQueueTickets = async (branch:number): Promise<Ticket[]> => {
+export const fetchQueueTickets = async (branch:InfoStorage): Promise<Ticket[]> => {
     try {
-        const url = `${QUEUE_URL}?branchId=${branch}`;
+        const branchId = branch.branchId;
+        console.log(branchId);
+        const url = `${QUEUE_URL}?branchId=${branchId}`;
         // console.log(url)
         const response: AxiosResponse<Ticket[]> = await axios.get<Ticket[]>(url);
         // console.log(response.data)
