@@ -280,7 +280,7 @@ onMounted(() => {
                 </div>
                 <div class="qr w-full flex justify-around my-4">
                     <div class="img flex justify-center items-center">
-                        <qrcode-vue  :size="200"
+                        <qrcode-vue  :size="400"
                         level="H"
                         background="#ffffff"
                         foreground="#000000"
