@@ -9,7 +9,7 @@ export default defineConfig(({ mode }) => {
   return {
     server: {
       host: '0.0.0.0', // Allows access from external networks
-      port: 5173,      // Specifies the port to run on
+      // port: 5173,      // Specifies the port to run on
     },
     plugins: [
       vue(),

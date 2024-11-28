@@ -19,6 +19,7 @@ const getBranches = async () => {
     // console.log(branches.value)
 }
 const handleSelectBranches = () => {
+    console.log("Set info", setInfo.value)
     localStorage.setItem("branch", JSON.stringify(setInfo.value))
 }
 const goMain = () => {

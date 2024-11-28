@@ -1,224 +1,187 @@
 <script setup lang="ts">
 import type { Ticket } from '../models/ticket.interface';
 import { fetchQueueTickets } from '../utils/tickets.utils';
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
-
-const videos = [
-    "https://youtu.be/wmnw6Ulb6ps",
-    "https://youtu.be/JPkui8Z06C8",
-    "https://youtu.be/9FVi63VqefM",
-    "https://youtu.be/NxC3V92BaPA",
-    "https://youtu.be/Vq8TsZXmVXw",
-    "https://youtu.be/TvrBJIbNYpY",
-]
-
-import bachelor from "../assets/bach.gif"
-import res from "../assets/res.gif"
-import master from "../assets/master.gif"
-
+import bachelor from "../assets/bach.gif";
+import res from "../assets/res.gif";
+import master from "../assets/master.gif";
 
 import type { InfoStorage } from '../models/infoStorage.interface';
 import RunningLineVue from '../components/RunningLine.vue';
-// import ShowClips from '../components/ShowClips.vue';
 
 const router = useRouter();
 
 const queueInfo = ref({} as InfoStorage);
 const branchSelected = ref<boolean>(true);
 
-const incomingTickets = ref<Ticket[]>([]);
-const tickets = ref<(Ticket | null)[]>([]);
-const allTickets = ref<(Number)[]>([]);
-
-
+const ticketsMap = ref<Map<number, Ticket>>(new Map());
+const allTickets = ref<Set<number>>(new Set());
 
 const audioContext = ref<AudioContext | null>(null);
-const VoicePlayList: string[] = [];
 const audioInitialized = ref(false);
-
-
-// const getQueueTickets = async () => {
-//     incomingTickets.value = await fetchQueueTickets(queueInfo.value.branchId);
-//     if (incomingTickets.value.length > 0) {
-//         const latestTicket = incomingTickets.value[incomingTickets.value.length - 1];
-//         if (!tickets.value.some(ticket => ticket && ticket.id === latestTicket.id)) {
-//             tickets.value.unshift(latestTicket);
-//             const lang = latestTicket.language === "KAZ" ? "KZ" : latestTicket.language === "RUS" ? "RU" : "EN";
-//             createVoicePlayList(latestTicket, lang);
-//             playAudio();
-//             tickets.value.pop(); // Remove the last ticket to keep the array size fixed
-//         }
-//     }
-// }
+let isFetching = false;
 
 const getQueueTickets = async () => {
-    // tickets.value = await fetchQueueTickets(queueInfo.value.branchId);
-    // tickets.value.sort((a, b) => {
-    //     return new Date(a.serviceStartTime).getTime() - new Date(b.serviceStartTime).getTime();
-    // });
+    if (isFetching) return;
+    isFetching = true;
 
+    try {
+        const incomingTickets = await fetchQueueTickets(queueInfo.value.branchId);
+        let newTicketsAdded = false;
 
-    incomingTickets.value = await fetchQueueTickets(queueInfo.value.branchId);
-    if (incomingTickets.value.length > 0) {
-        let finished = false;
-        incomingTickets.value.map(e => {
-            const latestTicket = e;
-            if (!allTickets.value.some(ticket => ticket && ticket === latestTicket.ticketNumber)) {
-                finished = true;
-                allTickets.value.unshift(latestTicket.ticketNumber);
-                tickets.value.unshift(latestTicket);
-
-                // const lang = latestTicket.language === "KAZ" ? "KZ" : latestTicket.language === "RUS" ? "RU" : "EN";
-                // createVoicePlayList(latestTicket, lang);
-                // playAudio();
-                // tickets.value.pop(); // Remove the last ticket to keep the array size fixed
+        incomingTickets.forEach(ticket => {
+            if (!allTickets.value.has(ticket.ticketNumber)) {
+                newTicketsAdded = true;
+                allTickets.value.add(ticket.ticketNumber);
+                ticketsMap.value.set(ticket.ticketNumber, ticket);
             }
         });
 
-        if (tickets.value.length > 10) {
-            tickets.value.splice(10);
-        }
-        if (allTickets.value.length > 20) {
-            allTickets.value.splice(20);
-        }
-        tickets.value.sort((a, b) => {
-            return new Date(b.serviceStartTime).getTime() - new Date(a.serviceStartTime).getTime();
-        });
-        if (finished) {
-            const last = tickets.value[0];
-            const lang = last?.language === "KAZ" ? "KZ" : last?.language === "RUS" ? "RU" : "EN";
-            createVoicePlayList(last, lang);
-            playAudio();
-            //         if (tickets.value.length > 12) {
-            //     tickets.value.splice(12); // Removes all elements after the 10th one
-            // }
+        // Limit the size of ticketsMap
+        if (ticketsMap.value.size > 10) {
+            const keys = Array.from(ticketsMap.value.keys()).sort((a, b) => {
+                const ticketA = ticketsMap.value.get(a);
+                const ticketB = ticketsMap.value.get(b);
+                return new Date(ticketB?.serviceStartTime || 0).getTime() - new Date(ticketA?.serviceStartTime || 0).getTime();
+            });
+
+            const keysToRemove = keys.slice(10);
+            keysToRemove.forEach(key => {
+                ticketsMap.value.delete(key);
+                allTickets.value.delete(key);
+            });
         }
 
+        if (newTicketsAdded) {
+            const latestTicket = Array.from(ticketsMap.value.values()).reduce((latest, current) => {
+                return new Date(current.serviceStartTime).getTime() > new Date(latest.serviceStartTime).getTime() ? current : latest;
+            }, incomingTickets[0]);
 
+            const lang = latestTicket.language === "KAZ" ? "KZ" : latestTicket.language === "RUS" ? "RU" : "EN";
+            await playAudioForTicket(latestTicket, lang);
+        }
+
+    } catch (error) {
+        console.error('Error fetching tickets:', error);
+    } finally {
+        isFetching = false;
+        setTimeout(getQueueTickets, 5000);
     }
-    console.log(tickets.value)
-}
+};
 
-const handleTaps = () => {
-    router.push("/admin");
-}
+// Function to play audio for a ticket
+const playAudioForTicket = async (ticket: Ticket, lang: string) => {
+    const voicePlayList = createVoicePlayList(ticket, lang);
+    await playAudioSequence(voicePlayList);
+};
 
-const getBranchIdFromLocalStorage = () => {
-    const infoObject = localStorage.getItem("branch");
-    if (infoObject) {
-        queueInfo.value = JSON.parse(infoObject) as InfoStorage;
-    } else {
-        branchSelected.value = false;
-    }
-}
-
-const createVoicePlayList = (ticket: Ticket, lang: string) => {
+const createVoicePlayList = (ticket: Ticket, lang: string): string[] => {
     let baseDir = '/src/assets/Voice/';
-    VoicePlayList.push(`${baseDir}01_NUM_${lang}.wav`);
-    Say(ticket.ticketNumber, lang, baseDir);
-    VoicePlayList.push(`${baseDir}02_NUM_${lang}.wav`);
+    const playList: string[] = [];
+    playList.push(`${baseDir}01_NUM_${lang}.wav`);
+    Say(ticket.ticketNumber, lang, baseDir, playList);
+    playList.push(`${baseDir}02_NUM_${lang}.wav`);
     if (['KZ', 'KG'].includes(lang)) {
-        SayTurkic(ticket.windowNum, lang, baseDir);
+        SayTurkic(ticket.windowNum, lang, baseDir, playList);
     } else {
-        Say(ticket.windowNum, lang, baseDir);
+        Say(ticket.windowNum, lang, baseDir, playList);
     }
-    VoicePlayList.push('stop');
-}
+    return playList;
+};
 
-const playAudio = async () => {
+const playAudioSequence = async (playList: string[]) => {
     if (!audioContext.value) {
         audioContext.value = new (window.AudioContext || window.webkitAudioContext)();
     }
 
-    while (VoicePlayList.length > 0) {
-        const audioSrc = VoicePlayList.shift();
-        if (audioSrc === 'stop') break;
+    for (const audioSrc of playList) {
         await playSound(audioSrc);
     }
-}
+};
 
 const playSound = (audioSrc: string) => {
     return new Promise<void>((resolve, reject) => {
         fetch(audioSrc)
             .then(response => response.arrayBuffer())
-            .then(buffer => audioContext.value?.decodeAudioData(buffer))
-            .then(decodedData => {
-                const source = audioContext.value?.createBufferSource();
-                if (source) {
-                    source.buffer = decodedData;
-                    source.connect(audioContext.value.destination);
-                    source.onended = resolve;
-                    source.start(0);
-                }
+            .then(buffer => {
+                if (!audioContext.value) return;
+                return audioContext.value.decodeAudioData(buffer);
             })
-            .catch(reject);
+            .then(decodedData => {
+                if (!audioContext.value || !decodedData) return;
+                const source = audioContext.value.createBufferSource();
+                source.buffer = decodedData;
+                source.connect(audioContext.value.destination);
+                source.onended = resolve;
+                source.start(0);
+            })
+            .catch(error => {
+                console.error('Error playing sound:', error);
+                resolve(); // Proceed even if there's an error
+            });
     });
-}
+};
 
-const Say = (Number: number, Locale: string, baseDir: string) => {
-    Locale = Locale.toUpperCase();
-    let S = Number.toString();
+const Say = (number: number, locale: string, baseDir: string, playList: string[]) => {
+    locale = locale.toUpperCase();
+    let S = number.toString();
     while (S.length !== 3) {
         S = '0' + S;
     }
 
     let F = S[0];
     if (F !== '0') {
-        VoicePlayList.push(`${baseDir}${F}00_${Locale}.wav`);
+        playList.push(`${baseDir}${F}00_${locale}.wav`);
     }
 
     S = S.slice(1);
     F = S[0];
     if (F !== '0') {
-        if (parseInt(S) >= 10 && parseInt(S) <= 19 && ['RU', 'EN'].includes(Locale)) {
-            VoicePlayList.push(`${baseDir}${S}_${Locale}.wav`);
+        if (parseInt(S) >= 10 && parseInt(S) <= 19 && ['RU', 'EN'].includes(locale)) {
+            playList.push(`${baseDir}${S}_${locale}.wav`);
             return;
         } else {
-            VoicePlayList.push(`${baseDir}${F}0_${Locale}.wav`);
+            playList.push(`${baseDir}${F}0_${locale}.wav`);
         }
     }
 
     S = S.slice(1);
     F = S[0];
     if (F !== '0') {
-        VoicePlayList.push(`${baseDir}${F}_${Locale}.wav`);
+        playList.push(`${baseDir}${F}_${locale}.wav`);
     }
-}
+};
 
-const SayTurkic = (Number: number, Loc_t: string, baseDir: string) => {
-    let S = Number.toString();
-    Loc_t = Loc_t.toUpperCase();
+const SayTurkic = (number: number, locale: string, baseDir: string, playList: string[]) => {
+    let S = number.toString();
+    locale = locale.toUpperCase();
     while (S.length !== 3) {
         S = '0' + S;
     }
 
-    let F = S[0];
     if (S.slice(1) === '00') {
-        VoicePlayList.push(`${baseDir}${Loc_t}_${S}.wav`);
+        playList.push(`${baseDir}${locale}_${S}.wav`);
         return;
-    } else if (F !== '0') {
-        VoicePlayList.push(`${baseDir}${F}00_${Loc_t}.wav`);
+    } else if (S[0] !== '0') {
+        playList.push(`${baseDir}${S[0]}00_${locale}.wav`);
     }
 
     S = S.slice(1);
-    F = S[0];
     if (S[1] === '0') {
-        VoicePlayList.push(`${baseDir}${Loc_t}_${S}.wav`);
+        playList.push(`${baseDir}${locale}_${S}.wav`);
     } else {
-        if (F !== '0') {
-            VoicePlayList.push(`${baseDir}${F}0_${Loc_t}.wav`);
+        if (S[0] !== '0') {
+            playList.push(`${baseDir}${S[0]}0_${locale}.wav`);
         }
     }
 
-    S = S.slice(1);
-    F = S[0];
-    if (F !== '0') {
-        VoicePlayList.push(`${baseDir}${Loc_t}_${F}.wav`);
+    if (S[1] !== '0') {
+        playList.push(`${baseDir}${locale}_${S[1]}.wav`);
     }
-    VoicePlayList.push(`${baseDir}03_NUM_KZ.wav`)
-}
+    playList.push(`${baseDir}03_NUM_KZ.wav`);
+};
 
 const initializeAudioContext = () => {
     if (!audioContext.value) {
@@ -228,8 +191,29 @@ const initializeAudioContext = () => {
         audioContext.value.resume();
     }
     audioInitialized.value = true;
-}
+};
 
+const getBranchIdFromLocalStorage = () => {
+    const infoObject = localStorage.getItem("branch");
+    if (infoObject) {
+        queueInfo.value = JSON.parse(infoObject) as InfoStorage;
+    } else {
+        branchSelected.value = false;
+    }
+};
+
+const ticketColumns = computed(() => {
+    const ticketsArray = Array.from(ticketsMap.value.values()).sort((a, b) => {
+        return new Date(b.serviceStartTime).getTime() - new Date(a.serviceStartTime).getTime();
+    });
+    const chunkSize = 5; // Number of rows per column
+    const columns = 3; // Number of columns
+    const result = [];
+    for (let i = 0; i < columns; i++) {
+        result.push(ticketsArray.slice(i * chunkSize, (i + 1) * chunkSize));
+    }
+    return result;
+});
 const getBranchQR = () => {
     
     switch (queueInfo.value.branchId) {
@@ -237,43 +221,17 @@ const getBranchQR = () => {
         case 2: return bachelor;
         case 3: return master;
     }
-
 }
-const ticketColumns = computed(() => {
-    const chunkSize = 5; // Number of rows per column
-    const columns = 3; // Number of columns
-    const result = [];
-    for (let i = 0; i < columns; i++) {
-        result.push(tickets.value.slice(i * chunkSize, (i + 1) * chunkSize));
-    }
-    return result;
-});
 
+const handleTaps = () => {
+    router.push("/admin");
+}
 
-
-// watch(tickets.value,()=>{
-//     if(tickets.value.length>12){
-//         tickets.value.splice(12); 
-//     }
-// })
 
 onMounted(() => {
-    getBranchIdFromLocalStorage();
-    getQueueTickets();
-    setInterval(getQueueTickets, 5000);
-
-//     document.addEventListener('DOMContentLoaded', () => {
-//     const button = document.getElementById('audioButton');
-
-//     if (button) {
-//         button.click();
-//         console.log("Audio initialization triggered programmatically!");
-//     } else {
-//         console.error("Audio button not found!");
-//     }
-// });
-
-    // initializeAudioContext(); // Refresh tickets every 3 seconds
+    // getBranchIdFromLocalStorage();
+    // getQueueTickets();
+    // initializeAudioContext();
 });
 </script>
 
