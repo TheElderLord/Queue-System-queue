@@ -6,9 +6,9 @@ import type { Ticket } from "@/models/ticket.interface";
 import type { InfoStorage } from "@/models/infoStorage.interface";
 
 
-export const fetchQueueTickets = async (branch:InfoStorage): Promise<Ticket[]> => {
+export const fetchQueueTickets = async (branch:number): Promise<Ticket[]> => {
     try {
-        const branchId = branch.branchId;
+        const branchId = branch;
         console.log(branchId);
         const url = `${QUEUE_URL}?branchId=${branchId}`;
         // console.log(url)

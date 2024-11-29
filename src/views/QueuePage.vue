@@ -1,4 +1,6 @@
 <script setup lang="ts">
+
+
 import type { Ticket } from '../models/ticket.interface';
 import { fetchQueueTickets } from '../utils/tickets.utils';
 import { computed, onMounted, ref } from 'vue';
@@ -9,8 +11,9 @@ import RunningLineVue from '../components/RunningLine.vue';
 
 import QrcodeVue from 'qrcode.vue';
 
-const host = import.meta.env.VITE_SERVER_API_HOST;
-const terminalPort = import.meta.env.VITE_TERMINAL_PORT;
+import { host, terminalPort } from '../utils/terminal.config';
+
+
 
 
 
@@ -32,7 +35,7 @@ const getQueueTickets = async () => {
     isFetching = true;
 
     try {
-        const incomingTickets = await fetchQueueTickets(queueInfo.value);
+        const incomingTickets = await fetchQueueTickets(queueInfo.value.branchId);
         let newTicketsAdded = false;
 
         incomingTickets.forEach(ticket => {
@@ -61,7 +64,7 @@ const getQueueTickets = async () => {
         if (newTicketsAdded) {
             const latestTicket = Array.from(ticketsMap.value.values()).reduce((latest, current) => {
                 return new Date(current.serviceStartTime).getTime() > new Date(latest.serviceStartTime).getTime() ? current : latest;
-            }, incomingTickets[incomingTickets.length-1]);
+            }, incomingTickets[incomingTickets.length - 1]);
 
             const lang = latestTicket.language === "KAZ" ? "KZ" : latestTicket.language === "RUS" ? "RU" : "EN";
             await playAudioForTicket(latestTicket, lang);
@@ -199,11 +202,27 @@ const initializeAudioContext = () => {
 
 const getBranchIdFromLocalStorage = () => {
     const infoObject = localStorage.getItem("branch");
+    console.log("from localStorage");
     if (infoObject) {
-        queueInfo.value = JSON.parse(infoObject) as InfoStorage;
+        try {
+            const parsedInfo = JSON.parse(infoObject);
+            if (parsedInfo && typeof parsedInfo === 'object' && !Array.isArray(parsedInfo)) {
+                // It's an object; proceed with assigning it
+                queueInfo.value = parsedInfo as InfoStorage;
+            } else {
+                // It's not an object (could be a primitive or an array)
+                branchSelected.value = false;
+            }
+        } catch (e) {
+            // JSON parsing failed; the string is not valid JSON
+            console.error('Error parsing JSON from localStorage:', e);
+            branchSelected.value = false;
+        }
     } else {
+        // No value in localStorage for "branch"
         branchSelected.value = false;
     }
+
 };
 
 const ticketColumns = computed(() => {
@@ -219,8 +238,11 @@ const ticketColumns = computed(() => {
     return result;
 });
 const getBranchQR = () => {
-    return `http://${host}:${terminalPort}?branch=${queueInfo.value.branchId}`
-   
+    // const branchId = localStorage.getItem("branch")
+    const url = `http://${host}:${terminalPort}?branch=${queueInfo.value.branchId}`;
+    console.log(url);
+    return url;
+
 }
 
 const handleTaps = () => {
@@ -238,22 +260,16 @@ onMounted(() => {
 <template>
     <div class="queue-container h-full w-full p-4">
         <h1 v-if="!branchSelected" class="text-3xl text-red-600 text-center">Выберите отделение в настройках</h1>
-        <button id="audioButton" class="initbutton" v-if="!audioInitialized" @click="initializeAudioContext">Инициализация аудио</button>
+        <button id="audioButton" class="initbutton" v-if="!audioInitialized"
+            @click="initializeAudioContext">Инициализация аудио</button>
         <div v-else class="mainBlock w-full h-4/6 flex">
-            <div
-                v-for="(column, colIndex) in ticketColumns"
-                :key="colIndex"
-                class="tickets w-1/3 h-full flex flex-wrap  overflow-hidden"
-            >
+            <div v-for="(column, colIndex) in ticketColumns" :key="colIndex"
+                class="tickets w-1/3 h-full flex flex-wrap  overflow-hidden">
                 <div class="ticket w-full flex justify-around text-2xl">
                     <div class="number w-full text-center">Номер</div>
                     <div class="window w-full text-center">Окно</div>
                 </div>
-                <div
-                    v-for="ticket in column"
-                    :key="ticket?.id"
-                    class="ticket w-full flex justify-around text-2xl"
-                >
+                <div v-for="ticket in column" :key="ticket?.id" class="ticket w-full flex justify-around text-2xl">
                     <div class="number w-full text-center text-5xl">
                         {{ ticket?.ticketNumber ?? '-' }}
                     </div>
@@ -263,7 +279,7 @@ onMounted(() => {
                 </div>
             </div>
         </div>
-        
+
         <footer class=" w-full">
             <div class="flex w-full">
                 <div class="logo  flex w-full">
@@ -280,18 +296,16 @@ onMounted(() => {
                 </div>
                 <div class="qr w-full flex justify-around my-4">
                     <div class="img flex justify-center items-center">
-                        <qrcode-vue  :size="400"
-                        level="H"
-                        background="#ffffff"
-                        foreground="#000000"
-                        render-as="svg"  :value="getBranchQR()"></qrcode-vue>
+                        <qrcode-vue :size="400" level="H" background="#ffffff" foreground="#000000" render-as="svg"
+                            :value="getBranchQR()"></qrcode-vue>
                     </div>
                     <div class="text text-center flex justify-center items-center">
                         <div>
                             <div>Сканируйте QR</div><br>
                         </div>
                     </div>
-                    <v-btn @click="handleTaps()" class="w-24 h-24 absolute bottom-0 right-0"><i class="fas fa-tools"></i></v-btn>
+                    <v-btn @click="handleTaps()" class="w-24 h-24 absolute bottom-0 right-0"><i
+                            class="fas fa-tools"></i></v-btn>
                 </div>
 
             </div>
@@ -309,7 +323,8 @@ onMounted(() => {
     width: 100%;
     height: 100%;
 }
-.initbutton{
+
+.initbutton {
     position: absolute;
     top: 20%;
     left: 30%;
@@ -325,6 +340,7 @@ onMounted(() => {
         color: black;
     }
 }
+
 .tickets {
     width: 100%;
     height: 100%;

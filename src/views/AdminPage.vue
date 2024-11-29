@@ -2,11 +2,11 @@
 import { onMounted, ref, } from "vue";
 
 
-import type { Branch } from "../models/branch/branch.interface"
+import type { Branch } from "../models/branch.interface"
 import { fetchBranches } from "../utils/branches.utils"
 
 import { useRouter } from "vue-router";
-import type { InfoStorage } from "@/models/infoStorage.interface";
+import type { InfoStorage } from "../models/infoStorage.interface";
 // const token = ref(Cookies.get('token') || uuidv4() as string);
 const branches = ref([] as Branch[]);
 const setInfo = ref({} as InfoStorage);
