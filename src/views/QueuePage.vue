@@ -296,7 +296,7 @@ onMounted(() => {
                 </div>
                 <div class="qr w-full flex justify-around my-4">
                     <div class="img flex justify-center items-center">
-                        <qrcode-vue :size="400" level="H" background="#ffffff" foreground="#000000" render-as="svg"
+                        <qrcode-vue v-if="queueInfo.show_qr" :size="400" level="H" background="#ffffff" foreground="#000000" render-as="svg"
                             :value="getBranchQR()"></qrcode-vue>
                     </div>
                     <div class="text text-center flex justify-center items-center">
